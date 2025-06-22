@@ -1,0 +1,58 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hex Map Viewer</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://d3js.org/d3-hexbin.v0.2.min.js"></script>
+  <style>
+    body { margin: 20; background: #1e1e1e; }
+    svg { display: block; margin: auto; }
+    text { fill: white; font-size: 10px; text-anchor: middle; dominant-baseline: central; }
+  </style>
+</head>
+<body>
+<svg width="1000" height="800"></svg>
+<script>
+const svg = d3.select("svg"); // Select the SVG element using D3
+const width = +svg.attr("width"); // Get SVG width as a number
+const height = +svg.attr("height"); // Get SVG height as a number
+
+
+// Create a hexbin generator with radius 40 and set its extent to the SVG size
+const hexbin = d3.hexbin().radius(40).extent([[0, 0], [width, height]]);
+
+// Fetch the hexmap.json file from the server (relative to current HTML file)
+fetch('hexmap.json')
+  // When the response arrives, parse it as JSON
+  .then(response => response.json())
+  // When the JSON data is ready, execute this function with the data
+  .then(data => {
+    // For each hex in the data, create a new SVG path (hexagon shape)
+    svg.selectAll("path") // For each data item, append a <path>
+      .data(data) // Bind the hex data array
+      .enter().append("path")
+      // Set the "d" attribute to the hexagon path using d3-hexbin
+      .attr("d", hexbin.hexagon())
+      // Position each hexagon using its x and y properties, scaled and offset
+      .attr("transform", function(d) { return `translate(${d.x}, ${d.y})` })
+      // Set the stroke color of the hexagon border to white
+      .attr("stroke", "#fff")
+      // Fill the hexagon with steelblue if explored, otherwise gray
+      .attr("fill", function(d) { return d.explored ? "steelblue" : "gray"; });
+
+    // For each hex, create a text label
+    svg.selectAll("text")
+      .data(data) // Bind the hex data ar
+      .enter().append("text") // For each data item, append a <text>
+      // Set the x position of the text label
+      .attr("x", d => d.x)
+      // Set the y position of the text label
+      .attr("y", d => d.y)
+      // Set the text content to the hex's id (e.g., "A1", "B2")
+      .text(function(d) { return d.id; });
+  });
+</script>
+</body>
+</html>
