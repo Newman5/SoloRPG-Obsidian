@@ -28,6 +28,10 @@ export default defineConfig({
                  autogenerate: { directory: 'guides' },
               },
               {
+                  label: 'Status Updates',
+                  autogenerate: { directory: 'projectStatus' },
+              },
+              {
                   label: 'Reference',
                   autogenerate: { directory: 'reference' },
               },
